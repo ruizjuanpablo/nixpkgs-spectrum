@@ -1,15 +1,16 @@
-{ stdenv, lib, fetchurl, pkg-config, meson, ninja, docutils
+{ stdenv, lib, fetchgit, pkg-config, meson, ninja, docutils
 , libpthreadstubs, libpciaccess
 , withValgrind ? valgrind-light.meta.available, valgrind-light
 }:
 
 stdenv.mkDerivation rec {
   pname = "libdrm";
-  version = "2.4.110";
+  version = "2.4.109";
 
-  src = fetchurl {
-    url = "https://dri.freedesktop.org/${pname}/${pname}-${version}.tar.xz";
-    sha256 = "0dwpry9m5l27dlhq48j4bsiqwm0247cxdqwv3b7ddmkynk2f9kpf";
+  src = fetchgit {
+    url = "https://source.codeaurora.org/external/imx/libdrm-imx.git";
+    rev = "lf-5.15.32-2.0.0";
+    sha256 = "sha256-sXy5ghJLC9wI3dypLdQ3/Zoptiyv+ghjbmnQfiBaasY=";
   };
 
   outputs = [ "out" "dev" "bin" ];
@@ -24,6 +25,7 @@ stdenv.mkDerivation rec {
     "-Dnm-path=${stdenv.cc.targetPrefix}nm"
     "-Dinstall-test-programs=true"
     "-Domap=true"
+    "-Dvivante=true"
   ] ++ lib.optionals (stdenv.isAarch32 || stdenv.isAarch64) [
     "-Dtegra=true"
     "-Detnaviv=true"

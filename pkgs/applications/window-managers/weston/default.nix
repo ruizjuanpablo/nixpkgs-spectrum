@@ -1,9 +1,9 @@
-{ lib, stdenv, fetchurl, fetchpatch, meson, ninja, pkg-config, wayland-scanner
+{ lib, stdenv, fetchgit, fetchpatch, meson, ninja, pkg-config, wayland-scanner
 , python3, wayland, libGL, mesa, libxkbcommon, cairo, libxcb, seatd
 , libXcursor, xlibsWrapper, udev, libdrm, mtdev, libjpeg, pam, dbus, libinput, libevdev, pixman
 , colord, lcms2, pipewire ? null
 , pango ? null, libunwind ? null, freerdp ? null, vaapi ? null, libva ? null
-, libwebp ? null, xwayland ? null, wayland-protocols
+, libwebp ? null, xwayland ? null, wayland-protocols, imx-gpu-viv, imx-g2d, makeWrapper
 # beware of null defaults, as the parameters *are* supplied by callPackage by default
 }:
 
@@ -12,25 +12,25 @@ stdenv.mkDerivation rec {
   pname = "weston";
   version = "10.0.0";
 
-  src = fetchurl {
-    url = "https://wayland.freedesktop.org/releases/${pname}-${version}.tar.xz";
-    sha256 = "1bj7wnadr7ssn6xw7k8ki0wpj6np3kjd2pcysfz3h0mr290rc8sw";
+  src = fetchgit {
+    url = "https://source.codeaurora.org/external/imx/weston-imx.git";
+    rev = "lf-5.15.32-2.0.0";
+    sha256 = "sha256-V8LI29YWKZRy4dD7FtGPgohJ+E/AQHLKtcN2oMKaldQ=";
   };
 
   patches = [
-    # Fix race condition in build system
-    (fetchpatch {
-      url = "https://gitlab.freedesktop.org/wayland/weston/-/commit/0d3e438d080433ed5d203c876e7de6c7f8a14f98.patch";
-      sha256 = "sha256-d9NG1vUIuL4jpXqCo0myz/97JuFYesH+8kJnegQXeMU=";
-    })
+    ./fix-g2d-renderer.patch
+    ./fix-wayland-scanner-path.patch
+    ./dont-use-plane-add-prop.patch
+    ./fix-gbm-path.patch
   ];
 
   depsBuildBuild = [pkg-config];
-  nativeBuildInputs = [ meson ninja pkg-config wayland-scanner python3 ];
+  nativeBuildInputs = [ meson ninja pkg-config python3 wayland-scanner makeWrapper ];
   buildInputs = [
     wayland libGL mesa libxkbcommon cairo /* libxcb libXcursor xlibsWrapper udev */ libdrm
     /* mtdev libjpeg pam dbus */ libinput libevdev /* pango libunwind freerdp vaapi libva */ pixman
-    /* libwebp */ wayland-protocols
+    /* libwebp */ wayland-protocols imx-gpu-viv imx-g2d
   #   colord lcms2 pipewire
   ];
 
@@ -39,9 +39,13 @@ stdenv.mkDerivation rec {
     "-Dimage-webp=false"
     "-Dlauncher-logind=false"
     # "-Dlauncher-libseat=true"
-    # "-Drenderer-gl=false"
+    "-Drenderer-gl=true"
+    "-Drenderer-g2d=true"
+    "-Degl=true"
+    "-Dopengl=true"
+    "-Dimxgpu=true"
     "-Dbackend-drm-screencast-vaapi=false"
-    # "-Dbackend-drm=false"
+    "-Dbackend-drm=true"
     "-Dbackend-default=drm"
     "-Dbackend-rdp=false"
     "-Dxwayland=false"
@@ -54,6 +58,7 @@ stdenv.mkDerivation rec {
     "-Dtest-junit-xml=false"
     "-Dsystemd=false"
     "-Dlauncher-logind=false"
+    "-Dbackend-x11=false"
   ];
 
   # mesonFlags= [
@@ -72,6 +77,10 @@ stdenv.mkDerivation rec {
   # ] ++ optionals (xwayland != null) [
   #   "-Dxwayland-path=${xwayland.out}/bin/Xwayland"
   # ];
+
+  postInstall = ''
+    wrapProgram $out/bin/weston --prefix LD_LIBRARY_PATH : "${imx-gpu-viv}/lib"
+  '';
 
   passthru.providedSessions = [ "weston" ];
 

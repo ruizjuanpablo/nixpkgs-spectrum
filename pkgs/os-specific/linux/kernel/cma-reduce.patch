@@ -1,0 +1,15 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8x-mek.dtsi b/arch/arm64/boot/dts/freescale/imx8x-mek.dtsi
+index cb792a0fdafb..50b351f0c520 100644
+--- a/arch/arm64/boot/dts/freescale/imx8x-mek.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8x-mek.dtsi
+@@ -138,8 +138,8 @@ encoder_reserved: encoder_reserved@94400000 {
+ 		linux,cma {
+ 			compatible = "shared-dma-pool";
+ 			reusable;
+-			size = <0 0x3c000000>;
+-			alloc-ranges = <0 0xc0000000 0 0x3c000000>;
++			size = <0 0x1E000000>;
++			alloc-ranges = <0 0xc0000000 0 0x1E000000>;
+ 			linux,cma-default;
+ 		};
+ 	};

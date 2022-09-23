@@ -1,0 +1,16 @@
+diff --git a/libweston/compositor.c b/libweston/compositor.c
+index 2ed088f8..d86c3341 100644
+--- a/libweston/compositor.c
++++ b/libweston/compositor.c
+@@ -8278,7 +8278,10 @@ weston_load_module(const char *name, const char *entrypoint)
+ 			len = snprintf(path, sizeof path, "%s/%s",
+ 				       LIBWESTON_MODULEDIR, name);
+ 	} else {
+-		len = snprintf(path, sizeof path, "%s", name);
++		if (strcmp(name, "/usr/lib/libgbm.so") == 0)
++		    len = snprintf(path, sizeof path, "libgbm.so");
++		else
++		    len = snprintf(path, sizeof path, "%s", name);
+ 	}
+ 
+ 	/* snprintf returns the length of the string it would've written,
