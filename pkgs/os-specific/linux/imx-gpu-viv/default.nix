@@ -1,7 +1,7 @@
 { stdenv
 , fetchurl
 , lib
-, autoPatchelfHook, wayland, libdrm
+, autoPatchelfHook, wayland, libdrm, gcc-unwrapped
 }:
 
 stdenv.mkDerivation rec {
@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
     autoPatchelfHook
   ];
 
-  buildInputs = [ wayland libdrm ];
+  buildInputs = [ wayland libdrm gcc-unwrapped ];
 
   dontBuild = true;
   unpackPhase = ''
@@ -30,13 +30,17 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $dev/include
     mkdir -p $dev/lib/pkgconfig
-    mkdir -p $out/lib    
+    mkdir -p $out/lib
+    mkdir -p $out/bin
     cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-core/usr/include/* $dev/include
     cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-core/usr/lib/pkgconfig/* $dev/lib/pkgconfig
     cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-core/usr/lib/*.so* $out/lib
     cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-core/usr/lib/wayland/* $out/lib
     cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-core/usr/lib/mx8qxp/* $out/lib
     cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-tools/gmem-info/usr/bin/* $out/bin
+    # NXP demo apps
+    mkdir -p $out/opt
+    cp -rd --no-preserve=ownership $pname-$version-aarch64/gpu-demos/opt/* $out/opt
 
     gl_so_path="$out/lib/libEGL.so"
     mkdir -p "$(dirname "$gl_so_path")"
