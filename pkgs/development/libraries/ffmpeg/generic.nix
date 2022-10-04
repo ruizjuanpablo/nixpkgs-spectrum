@@ -9,7 +9,7 @@
 # Build options
 , runtimeCpuDetectBuild ? true # Detect CPU capabilities at runtime
 , multithreadBuild ? true # Multithreading via pthreads/win32 threads
-, sdlSupport ? !stdenv.isAarch32, SDL ? null, SDL2 ? null
+, sdlSupport ? false, SDL ? null, SDL2 ? null
 , vdpauSupport ? !stdenv.isAarch32, libvdpau ? null
 # Developer options
 , debugDeveloper ? false

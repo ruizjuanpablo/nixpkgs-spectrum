@@ -1,12 +1,12 @@
 { stdenv
 , lib
+, eudev
 , buildPackages
 , fetchFromGitLab
 , removeReferencesTo
 , python3
 , meson
 , ninja
-, systemd
 , pkg-config
 , docutils
 , doxygen
@@ -127,7 +127,7 @@ let
       vulkan-headers
       vulkan-loader
       webrtc-audio-processing
-      systemd
+      eudev
     ] ++ lib.optionals gstreamerSupport [ gst_all_1.gst-plugins-base gst_all_1.gstreamer ]
     ++ lib.optionals libcameraSupport [ libcamera libdrm ]
     ++ lib.optional ffmpegSupport ffmpeg
@@ -153,7 +153,7 @@ let
       "-Dlibpulse=${mesonEnableFeature pulseTunnelSupport}"
       "-Davahi=${mesonEnableFeature zeroconfSupport}"
       "-Dgstreamer=${mesonEnableFeature gstreamerSupport}"
-      "-Dsystemd-system-service=enabled"
+      "-Dsystemd-system-service=disabled"
       "-Dffmpeg=${mesonEnableFeature ffmpegSupport}"
       "-Dbluez5=${mesonEnableFeature bluezSupport}"
       "-Dbluez5-backend-hsp-native=${mesonEnableFeature nativeHspSupport}"
@@ -167,6 +167,7 @@ let
       "-Dvulkan=enabled"
       "-Dx11=${mesonEnableFeature x11Support}"
       "-Dsdl2=disabled" # required only to build examples, causes dependency loop
+      "-Dudev=enabled"
     ];
 
     # Fontconfig error: Cannot load default config file

@@ -51,7 +51,7 @@ stdenv.mkDerivation rec {
     docbook-xsl-nons
     docbook_xml_dtd_45
     python3 # for data-generators
-    systemd # used for checks to install systemd user service
+#    systemd # used for checks to install systemd user service
     dbus # used for checks and pkg-config to install dbus service/s
   ] ++ checkInputs; # gi is in the main meson.build and checked regardless of
                     # whether tests are enabled
@@ -74,6 +74,7 @@ stdenv.mkDerivation rec {
 
   mesonFlags = [
     "-Ddocs=true"
+    "-Dsystemd_user_services=false"
   ];
 
   doCheck = true;

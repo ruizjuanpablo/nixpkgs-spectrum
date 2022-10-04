@@ -81,16 +81,17 @@
 
 ## optional libraries
 
-, alsaSupport ? stdenv.isLinux, alsa-lib
+, alsaSupport ? true, alsa-lib
 , ffmpegSupport ? true
-, gssSupport ? true, libkrb5
-, jackSupport ? stdenv.isLinux, libjack2
+, gssSupport ? false, libkrb5
+, jackSupport ? false, libjack2
 , jemallocSupport ? true, jemalloc
 , ltoSupport ? (stdenv.isLinux && stdenv.is64bit), overrideCC, buildPackages
 , pgoSupport ? (stdenv.isLinux && stdenv.isx86_64 && stdenv.hostPlatform == stdenv.buildPlatform), xvfb-run
-, pipewireSupport ? waylandSupport && webrtcSupport
-, pulseaudioSupport ? stdenv.isLinux, libpulseaudio
-, sndioSupport ? stdenv.isLinux, sndio
+, pipewireSupport ? false # waylandSupport && webrtcSupport
+, pulseaudioSupport ? false # stdenv.isLinux,
+, libpulseaudio
+, sndioSupport ? false, sndio
 , waylandSupport ? true, libxkbcommon, libdrm
 
 ## privacy-related options
@@ -100,11 +101,11 @@
 # WARNING: NEVER set any of the options below to `true` by default.
 # Set to `!privacySupport` or `false`.
 
-, crashreporterSupport ? !privacySupport
-, geolocationSupport ? !privacySupport
-, googleAPISupport ? geolocationSupport
-, mlsAPISupport ? geolocationSupport
-, webrtcSupport ? !privacySupport
+, crashreporterSupport ? false
+, geolocationSupport ? false
+, googleAPISupport ? false
+, mlsAPISupport ? false
+, webrtcSupport ? false
 
 # digital rights managemewnt
 
@@ -353,6 +354,7 @@ buildStdenv.mkDerivation ({
     "--with-system-png" # needs APNG support
     "--with-system-webp"
     "--with-system-zlib"
+    "--disable-audio-backends"
     # for firefox, host is buildPlatform, target is hostPlatform
     "--host=${buildStdenv.buildPlatform.config}"
     "--target=${buildStdenv.hostPlatform.config}"
