@@ -549,7 +549,7 @@ in {
   ubootIMX8QM = buildUBoot {
     version = "2022.04";
     src = fetchGit {
-      url = "https://github.com/tiiuae/uboot-imx8.git";
+      url = "https://github.com/ruizjuanpablo/uboot-imx8.git";
       ref = "lf_v2022.04-uefi";
     };
     BL31 = "${armTrustedFirmwareIMX8QM}/bl31.bin";
