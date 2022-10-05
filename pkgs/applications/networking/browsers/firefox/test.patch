@@ -1,0 +1,26 @@
+diff --git a/widget/gtk/nsClipboard.cpp b/widget/gtk/nsClipboard.cpp
+index 2d30596f21..79b4b11179 100644
+--- a/widget/gtk/nsClipboard.cpp
++++ b/widget/gtk/nsClipboard.cpp
+@@ -868,15 +868,15 @@ void nsClipboard::SelectionGetEvent(GtkClipboard* aClipboard,
+       return;
+     }
+ 
+-    RefPtr<GdkPixbuf> pixbuf = nsImageToPixbuf::ImageToPixbuf(image);
+-    if (!pixbuf) {
++    //RefPtr<GdkPixbuf> pixbuf = nsImageToPixbuf::ImageToPixbuf(image);
++    //if (!pixbuf) {
+       LOGCLIP("    nsImageToPixbuf::ImageToPixbuf() failed!\n");
+       return;
+-    }
++    //}
+ 
+-    LOGCLIP("    Setting pixbuf image data as %s\n",
+-            GUniquePtr<gchar>(gdk_atom_name(selectionTarget)).get());
+-    gtk_selection_data_set_pixbuf(aSelectionData, pixbuf);
++//    LOGCLIP("    Setting pixbuf image data as %s\n",
++//            GUniquePtr<gchar>(gdk_atom_name(selectionTarget)).get());
++//    gtk_selection_data_set_pixbuf(aSelectionData, pixbuf);
+     return;
+   }
+ 

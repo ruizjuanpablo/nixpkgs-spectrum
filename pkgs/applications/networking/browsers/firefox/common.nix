@@ -70,6 +70,7 @@
 , zlib
 , pkgsBuildBuild
 
+, gdk-pixbuf
 # optionals
 
 ## debugging
@@ -86,8 +87,8 @@
 , gssSupport ? false, libkrb5
 , jackSupport ? false, libjack2
 , jemallocSupport ? true, jemalloc
-, ltoSupport ? (stdenv.isLinux && stdenv.is64bit), overrideCC, buildPackages
-, pgoSupport ? (stdenv.isLinux && stdenv.isx86_64 && stdenv.hostPlatform == stdenv.buildPlatform), xvfb-run
+, ltoSupport ? false, overrideCC, buildPackages
+, pgoSupport ? false, xvfb-run
 , pipewireSupport ? false # waylandSupport && webrtcSupport
 , pulseaudioSupport ? false # stdenv.isLinux,
 , libpulseaudio
@@ -220,6 +221,7 @@ buildStdenv.mkDerivation ({
   ];
 
   patches = [
+./test.patch
   ]
   ++ lib.optional (lib.versionAtLeast version "86") ./env_var_for_system_dir-ff86.patch
   ++ lib.optional (lib.versionAtLeast version "90" && lib.versionOlder version "95") ./no-buildconfig-ffx90.patch
@@ -340,7 +342,7 @@ buildStdenv.mkDerivation ({
     "--disable-tests"
     "--disable-updater"
     "--enable-application=${application}"
-    "--enable-default-toolkit=cairo-gtk3${lib.optionalString waylandSupport "-wayland"}"
+    "--enable-default-toolkit=cairo-gtk3-wayland"
     "--enable-system-pixman"
     "--with-distribution-id=org.nixos"
     "--with-libclang-path=${llvmPackagesBuildBuild.libclang.lib}/lib"
@@ -415,17 +417,18 @@ buildStdenv.mkDerivation ({
     nspr
     pango
     perl
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXdamage
-    xorg.libXext
-    xorg.libXft
-    xorg.libXi
-    xorg.libXrender
-    xorg.libXt
-    xorg.libXtst
-    xorg.pixman
-    xorg.xorgproto
+gdk-pixbuf
+  #  xorg.libX11
+  #  xorg.libXcursor
+  #  xorg.libXdamage
+  #  xorg.libXext
+  #  xorg.libXft
+  #  xorg.libXi
+  #  xorg.libXrender
+  #  xorg.libXt
+  #  xorg.libXtst
+  #  xorg.pixman
+  #  xorg.xorgproto
     zip
     zlib
   ]

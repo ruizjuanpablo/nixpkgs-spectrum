@@ -1,10 +1,10 @@
 { config, lib, stdenv, fetchurl, fetchpatch, pkg-config, libiconv
 , libintl, expat, zlib, libpng, pixman, fontconfig, freetype
-, x11Support? !stdenv.isDarwin, libXext, libXrender
+, x11Support? false, libXext, libXrender
 , gobjectSupport ? true, glib
-, xcbSupport ? x11Support, libxcb, xcbutil # no longer experimental since 1.12
+, xcbSupport ? false, libxcb, xcbutil # no longer experimental since 1.12
 , libGLSupported ? lib.elem stdenv.hostPlatform.system lib.platforms.mesaPlatforms
-, glSupport ? x11Support && config.cairo.gl or (libGLSupported && stdenv.isLinux)
+, glSupport ? false # x11Support && config.cairo.gl or (libGLSupported && stdenv.isLinux)
 , libGL ? null # libGLU libGL is no longer a big dependency
 , pdfSupport ? true
 , darwin

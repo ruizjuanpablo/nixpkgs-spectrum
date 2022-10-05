@@ -76,8 +76,8 @@ let
             ++ lib.optional ffmpegSupport ffmpeg
             ++ lib.optional gssSupport libkrb5
             ++ lib.optional useGlvnd libglvnd
-            ++ lib.optionals (cfg.enableQuakeLive or false)
-            (with xorg; [ stdenv.cc libX11 libXxf86dga libXxf86vm libXext libXt alsa-lib zlib ])
+       #     ++ lib.optionals (cfg.enableQuakeLive or false)
+      #      (with xorg; [ stdenv.cc libX11 libXxf86dga libXxf86vm libXext libXt alsa-lib zlib ])
             ++ lib.optional (config.pulseaudio or true) libpulseaudio
             ++ lib.optional alsaSupport alsa-lib
             ++ lib.optional sndioSupport sndio

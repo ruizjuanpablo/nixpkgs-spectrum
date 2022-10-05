@@ -32,7 +32,7 @@
 , sassc
 , trackerSupport ? stdenv.isLinux && (stdenv.buildPlatform == stdenv.hostPlatform)
 , tracker
-, x11Support ? stdenv.isLinux
+, x11Support ? false #stdenv.isLinux
 , waylandSupport ? stdenv.isLinux
 , libGL
 , wayland
@@ -111,7 +111,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     libxkbcommon
-    (libepoxy.override { inherit x11Support; })
+    libepoxy
     isocodes
   ] ++ lib.optionals stdenv.isDarwin [
     AppKit
@@ -156,7 +156,7 @@ stdenv.mkDerivation rec {
     "-Dtests=false"
     "-Dtracker3=${lib.boolToString trackerSupport}"
     "-Dbroadway_backend=${lib.boolToString broadwaySupport}"
-    "-Dx11_backend=${lib.boolToString x11Support}"
+    "-Dx11_backend=false"
     "-Dquartz_backend=${lib.boolToString (stdenv.isDarwin && !x11Support)}"
     "-Dintrospection=${lib.boolToString (stdenv.buildPlatform == stdenv.hostPlatform)}"
   ];
@@ -171,8 +171,8 @@ stdenv.mkDerivation rec {
 
   postPatch = ''
     # See https://github.com/NixOS/nixpkgs/issues/132259
-    substituteInPlace meson.build \
-      --replace "x11_enabled = false" ""
+ #   substituteInPlace meson.build \
+  #    --replace "x11_enabled = false" ""
 
     files=(
       build-aux/meson/post-install.py

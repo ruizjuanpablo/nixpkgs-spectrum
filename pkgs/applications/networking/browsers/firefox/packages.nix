@@ -7,6 +7,7 @@ rec {
     src = fetchurl {
       url = "mirror://mozilla/firefox/releases/${version}/source/firefox-${version}.source.tar.xz";
       sha512 = "fffe7e0940c1443fcdc5b205677764cb4e04b29f33fcfafb2857d383700584f309806b81fc4989efb56cc12a3cca1ff7d451b647050c43e98777b5c952ed5d56";
+      #sha512 = "sha512-//5+CUDBRD/NxbIFZ3dky04Esp8z/Pr7KFfTg3AFhPMJgGuB/EmJ77VswSo8yh/31FG2RwUMQ+mHd7XJUu1dVg==";
     };
 
     meta = {
