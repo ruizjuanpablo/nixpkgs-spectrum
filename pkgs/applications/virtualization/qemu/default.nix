@@ -33,6 +33,7 @@
                     else null)
 , nixosTestRunner ? false
 , doCheck ? false
+, extraPatches ? [ ]
 , qemu  # for passthru.tests
 }:
 
@@ -116,7 +117,8 @@ stdenv.mkDerivation rec {
       sha256 = "sha256-evzrN3i4ntc/AFG0C0rezQpQbWcnx74nXO+5DLErX8o=";
     })
   ]
-    ++ lib.optional nixosTestRunner ./force-uid0-on-9p.patch;
+    ++ lib.optional nixosTestRunner ./force-uid0-on-9p.patch
+    ++ extraPatches;
 
   postPatch = ''
     # Otherwise tries to ensure /var/run exists.
