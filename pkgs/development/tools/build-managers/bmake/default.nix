@@ -5,7 +5,6 @@
 , getopt
 , tzdata
 , ksh
-, pkgsMusl # for passthru.tests
 }:
 
 stdenv.mkDerivation rec {
@@ -108,6 +107,6 @@ stdenv.mkDerivation rec {
     broken = stdenv.isAarch64; # ofborg complains
   };
 
-  passthru.tests.bmakeMusl = pkgsMusl.bmake;
+  passthru.tests.bmakeMusl = bmake;
 }
 # TODO: report the quirks and patches to bmake devteam (especially the Musl one)

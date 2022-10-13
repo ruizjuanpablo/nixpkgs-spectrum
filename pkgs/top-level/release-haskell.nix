@@ -273,8 +273,8 @@ let
       };
 
       # GHCs linked to musl.
-      pkgsMusl.haskell.compiler = lib.recursiveUpdate
-        (packagePlatforms pkgs.pkgsMusl.haskell.compiler)
+      haskell.compiler = lib.recursiveUpdate
+        (packagePlatforms pkgs.haskell.compiler)
         {
           # remove musl ghc865Binary since it is known to be broken and
           # causes an evaluation error on darwin.
@@ -289,7 +289,7 @@ let
         };
 
       # Get some cache going for MUSL-enabled GHC.
-      pkgsMusl.haskellPackages =
+      haskellPackages =
         removePlatforms
           [
             # pkgsMusl is compiled natively with musl.  It is not
@@ -302,7 +302,7 @@ let
             "x86_64-darwin"
           ]
           {
-            inherit (packagePlatforms pkgs.pkgsMusl.haskellPackages)
+            inherit (packagePlatforms pkgs.haskellPackages)
               hello
               lens
               random
@@ -429,7 +429,7 @@ let
       };
 
       muslGHCs = pkgs.releaseTools.aggregate {
-        name = "haskell-pkgsMusl-ghcs";
+        name = "haskell-ghcs";
         meta = {
           description = "GHCs built with musl";
           maintainers = with lib.maintainers; [
@@ -437,17 +437,17 @@ let
           ];
         };
         constituents = accumulateDerivations [
-          jobs.pkgsMusl.haskell.compiler.ghc8102Binary
-          jobs.pkgsMusl.haskell.compiler.ghc8107Binary
-          jobs.pkgsMusl.haskell.compiler.ghc884
-          jobs.pkgsMusl.haskell.compiler.ghc8107
-          jobs.pkgsMusl.haskell.compiler.ghc902
-          jobs.pkgsMusl.haskell.compiler.ghc922
-          jobs.pkgsMusl.haskell.compiler.ghcHEAD
-          jobs.pkgsMusl.haskell.compiler.integer-simple.ghc8107
-          jobs.pkgsMusl.haskell.compiler.native-bignum.ghc902
-          jobs.pkgsMusl.haskell.compiler.native-bignum.ghc922
-          jobs.pkgsMusl.haskell.compiler.native-bignum.ghcHEAD
+          jobs.haskell.compiler.ghc8102Binary
+          jobs.haskell.compiler.ghc8107Binary
+          jobs.haskell.compiler.ghc884
+          jobs.haskell.compiler.ghc8107
+          jobs.haskell.compiler.ghc902
+          jobs.haskell.compiler.ghc922
+          jobs.haskell.compiler.ghcHEAD
+          jobs.haskell.compiler.integer-simple.ghc8107
+          jobs.haskell.compiler.native-bignum.ghc902
+          jobs.haskell.compiler.native-bignum.ghc922
+          jobs.haskell.compiler.native-bignum.ghcHEAD
         ];
       };
 
