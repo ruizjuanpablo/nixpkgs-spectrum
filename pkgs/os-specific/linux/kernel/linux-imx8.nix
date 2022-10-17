@@ -27,6 +27,11 @@ buildLinux (args // rec {
     VFIO_PLATFORM y
   '';
 
+  kernelPatches = [ {
+    name = "Disable autosuspend USB devices";
+    patch = ./disable-autosuspend-usb.patch;
+  } ];
+
   src = fetchGit {
     url = "https://source.codeaurora.org/external/imx/linux-imx";
     ref = "refs/tags/lf-5.15.32-2.0.0";
