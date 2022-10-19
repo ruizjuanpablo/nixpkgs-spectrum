@@ -217,7 +217,6 @@ in {
 
     linux_imx8 = callPackage ../os-specific/linux/kernel/linux-imx8.nix {
       kernelPatches = with kernelPatches; [
-          kernelPatches.add_support_for_gpu_pt
       ];
     };
 

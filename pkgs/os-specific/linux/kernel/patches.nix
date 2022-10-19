@@ -104,10 +104,4 @@
     patch = ./mac-nvme-t2.patch;
   };
 
-  add_support_for_gpu_pt = rec {
-    name = "add_support_for_gpu_pt";
-    patch = ./linux-imx8/0001-Added-DTS-and-GPU-PT-drivers-changes-for-VM.patch;
-  };
-
-
 }

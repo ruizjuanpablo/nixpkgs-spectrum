@@ -1,27 +1,30 @@
-From eae8c5662703330b05fe1765898d692dc80f3971 Mon Sep 17 00:00:00 2001
+From be1d6be0cd12918e59b1d3e8bef565c2ae70a0a8 Mon Sep 17 00:00:00 2001
 From: Juan Pablo Ruiz <juanpablo.ruiz@tii.ae>
-Date: Sun, 9 Oct 2022 23:18:36 +0400
+Date: Wed, 19 Oct 2022 11:57:25 +0400
 Subject: [PATCH] Added DTS and GPU-PT drivers changes for VM
 
 - Added host and VM device trees
 - Added manual address translation on GPU and DRM drivers
 - VFIO-Platform reset_required in false by default
 - KVM always use KVM_ARM_TARGET_GENERIC_V8
+- Added required kernel configurations to imx_v8_defconfig
 
 Signed-off-by: Juan Pablo Ruiz <juanpablo.ruiz@tii.ae>
 ---
  arch/arm64/boot/dts/freescale/Makefile        |   2 +
  .../boot/dts/freescale/imx8qm-mek-hdmi-vm.dts | 705 ++++++++++++++++++
+ .../boot/dts/freescale/imx8qm-mek-hdmi2.dts   | 116 +++
  .../dts/freescale/imx8qm-mek-kvm-host.dts     | 217 ++++++
  .../dts/freescale/imx8qm-ss-hdmi_mod.dtsi     | 224 ++++++
- arch/arm64/configs/imx_v8_defconfig           |   2 +-
+ arch/arm64/configs/imx_v8_defconfig           |   7 +-
  arch/arm64/kvm/guest.c                        |   4 +
- drivers/gpu/drm/drm_gem_cma_helper.c          |   8 +
+ drivers/gpu/drm/drm_gem_cma_helper.c          |  55 +-
  .../gpu-viv/hal/kernel/gc_hal_kernel_mmu.c    |   4 +-
  .../hal/os/linux/kernel/gc_hal_kernel_os.c    |   6 +
  drivers/vfio/platform/vfio_platform.c         |   2 +-
- 10 files changed, 1171 insertions(+), 3 deletions(-)
+ 11 files changed, 1335 insertions(+), 7 deletions(-)
  create mode 100644 arch/arm64/boot/dts/freescale/imx8qm-mek-hdmi-vm.dts
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8qm-mek-hdmi2.dts
  create mode 100644 arch/arm64/boot/dts/freescale/imx8qm-mek-kvm-host.dts
  create mode 100644 arch/arm64/boot/dts/freescale/imx8qm-ss-hdmi_mod.dtsi
 
@@ -749,6 +752,128 @@ index 000000000000..9f25a74f1e37
 +	cores = <&gpu_3d0>;
 +	status = "okay";
 +};
+diff --git a/arch/arm64/boot/dts/freescale/imx8qm-mek-hdmi2.dts b/arch/arm64/boot/dts/freescale/imx8qm-mek-hdmi2.dts
+new file mode 100644
+index 000000000000..e93a9b81b6d6
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx8qm-mek-hdmi2.dts
+@@ -0,0 +1,116 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2019 NXP
++ *	Sandor Yu <Sandor.yu@nxp.com>
++ */
++ /* HDMI Only driver, LVDS is disabled */
++
++/dts-v1/;
++
++#include "imx8qm-mek-rpmsg.dts"
++
++/ {
++    sound-hdmi-tx {
++        compatible = "fsl,imx-audio-hdmi";
++        model = "imx-audio-hdmi-tx";
++        audio-cpu = <&sai5>;
++        protocol = <1>;
++        hdmi-out;
++    };
++
++	sound-hdmi-arc {
++		compatible = "fsl,imx-audio-spdif";
++		model = "imx-hdmi-arc";
++		spdif-controller = <&spdif1>;
++		spdif-in;
++		spdif-out;
++	};
++};
++
++&sai5 {
++	status = "okay";
++};
++
++&sai5_lpcg {
++	status = "okay";
++};
++
++&ldb1_phy {
++	status = "disabled";
++};
++
++&ldb1 {
++	status = "disabled";
++};
++
++&mipi0_dsi_host {
++	status = "disabled";
++};
++
++&mipi0_dphy {
++	status = "disabled";
++};
++
++&irqsteer_hdmi {
++	status = "okay";
++};
++
++&hdmi_lpcg_i2c0 {
++	status = "okay";
++};
++
++&hdmi_lpcg_lis_ipg {
++	status = "okay";
++};
++
++&hdmi_lpcg_pwm_ipg {
++	status = "okay";
++};
++
++&hdmi_lpcg_i2s {
++	status = "okay";
++};
++
++&hdmi_lpcg_gpio_ipg {
++	status = "okay";
++};
++
++&hdmi_lpcg_msi_hclk {
++	status = "okay";
++};
++
++&hdmi_lpcg_pxl {
++	status = "okay";
++};
++
++&hdmi_lpcg_phy {
++	status = "okay";
++};
++
++&hdmi_lpcg_apb_mux_csr {
++	status = "okay";
++};
++
++&hdmi_lpcg_apb_mux_ctrl {
++	status = "okay";
++};
++
++&hdmi_lpcg_apb {
++	status = "okay";
++};
++
++&hdmi {
++	compatible = "cdn,imx8qm-hdmi";
++	firmware-name = "hdmitxfw.bin";
++	lane-mapping = <0x93>;
++	hdcp-config = <0x3>;
++	status = "disabled";
++};
++
++&spdif1 {
++	status = "okay";
++};
++
++&spdif1_lpcg {
++	status = "okay";
++};
 diff --git a/arch/arm64/boot/dts/freescale/imx8qm-mek-kvm-host.dts b/arch/arm64/boot/dts/freescale/imx8qm-mek-kvm-host.dts
 new file mode 100644
 index 000000000000..47615caf0d40
@@ -1204,7 +1329,7 @@ index 000000000000..66a9d3af2e69
 +	    };
 +	};
 diff --git a/arch/arm64/configs/imx_v8_defconfig b/arch/arm64/configs/imx_v8_defconfig
-index 74dc82cb4dde..2a8bc034cc18 100644
+index 74dc82cb4dde..9df19a53dddf 100644
 --- a/arch/arm64/configs/imx_v8_defconfig
 +++ b/arch/arm64/configs/imx_v8_defconfig
 @@ -40,7 +40,7 @@ CONFIG_KEXEC=y
@@ -1216,6 +1341,22 @@ index 74dc82cb4dde..2a8bc034cc18 100644
  CONFIG_COMPAT=y
  CONFIG_RANDOMIZE_BASE=y
  CONFIG_PM_DEBUG=y
+@@ -687,7 +687,7 @@ CONFIG_USB_CONN_GPIO=y
+ CONFIG_USB=y
+ CONFIG_USB_OTG=y
+ CONFIG_USB_XHCI_HCD=y
+-CONFIG_USB_XHCI_PCI_RENESAS=m
++CONFIG_USB_XHCI_PCI_RENESAS=y
+ CONFIG_USB_EHCI_HCD=y
+ CONFIG_USB_EHCI_HCD_PLATFORM=y
+ CONFIG_USB_OHCI_HCD=y
+@@ -1048,3 +1048,6 @@ CONFIG_TRUSTED_KEYS=m
+ CONFIG_TRUSTED_KEYS_TPM=n
+ CONFIG_TRUSTED_KEYS_TEE=n
+ CONFIG_TRUSTED_KEYS_CAAM=y
++CONFIG_VFIO_PLATFORM=y
++CONFIG_USB_XHCI_PCI=y
++CONFIG_USB_AUTOSUSPEND_DELAY=-1
 diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
 index 5ce26bedf23c..45c059c9a912 100644
 --- a/arch/arm64/kvm/guest.c
@@ -1232,24 +1373,152 @@ index 5ce26bedf23c..45c059c9a912 100644
  	case ARM_CPU_IMP_ARM:
  		switch (part_number) {
 diff --git a/drivers/gpu/drm/drm_gem_cma_helper.c b/drivers/gpu/drm/drm_gem_cma_helper.c
-index 6533efa84020..f2106aeaf371 100644
+index 6533efa84020..2bb5012f1c6d 100644
 --- a/drivers/gpu/drm/drm_gem_cma_helper.c
 +++ b/drivers/gpu/drm/drm_gem_cma_helper.c
-@@ -138,6 +138,14 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
+@@ -116,6 +116,8 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
+ 	struct drm_gem_cma_object *cma_obj;
+ 	int ret;
+ 
++	DRM_INFO("%s\n", __func__);
++
+ 	size = round_up(size, PAGE_SIZE);
+ 
+ 	cma_obj = __drm_gem_cma_create(drm, size, false);
+@@ -123,11 +125,13 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
+ 		return cma_obj;
+ 
+ 	if (cma_obj->map_noncoherent) {
++		DRM_INFO("%s 1\n", __func__);
+ 		cma_obj->vaddr = dma_alloc_noncoherent(drm->dev, size,
+ 						       &cma_obj->paddr,
+ 						       DMA_TO_DEVICE,
+ 						       GFP_KERNEL | __GFP_NOWARN);
+ 	} else {
++		DRM_INFO("%s 2\n", __func__);
+ 		cma_obj->vaddr = dma_alloc_wc(drm->dev, size, &cma_obj->paddr,
+ 					      GFP_KERNEL | __GFP_NOWARN);
+ 	}
+@@ -138,6 +142,17 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
  		goto error;
  	}
  
-+    DRM_INFO("\n\nvm cma_obj->paddr: 0x%08X\n", cma_obj->paddr);
++#if 0
++	DRM_INFO("\n");
++    DRM_INFO("vm cma_obj->paddr: 0x%08X\n", cma_obj->paddr);
 +    // If the VM CPU physical address is in the CMA, translate to the host PA for the GPU
 +    if(0x40000000 <= cma_obj->paddr && cma_obj->paddr < (0x40000000 + 0x10000000)){
 +        cma_obj->paddr = cma_obj->paddr - 0x40000000 + 0xd0000000;
 +    }
 +
-+    DRM_INFO("host cma_obj->paddr: 0x%08X\n\n", cma_obj->paddr);
++    DRM_INFO("host cma_obj->paddr: 0x%08X, size: 0x%08X\n", cma_obj->paddr, size);
 +
++#endif
  	return cma_obj;
  
  error:
+@@ -205,20 +220,36 @@ void drm_gem_cma_free_object(struct drm_gem_object *gem_obj)
+ 	struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(gem_obj);
+ 	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(cma_obj->vaddr);
+ 
++	DRM_INFO("\n\n**************** %s ********************** \n\n", __func__);
++
++	return;
++
+ 	if (gem_obj->import_attach) {
++		DRM_INFO("d1\n");
+ 		if (cma_obj->vaddr)
+ 			dma_buf_vunmap(gem_obj->import_attach->dmabuf, &map);
+ 		drm_prime_gem_destroy(gem_obj, cma_obj->sgt);
+ 	} else if (cma_obj->vaddr) {
+-		if (cma_obj->map_noncoherent)
++		DRM_INFO("d2\n");
++		if (cma_obj->map_noncoherent){
++			DRM_INFO("d3\n");
++			DRM_INFO("cma_obj->paddr: 0x%08X\n", cma_obj->paddr);
++			DRM_INFO("cma_obj->vaddr: 0x%08X\n", cma_obj->vaddr);
+ 			dma_free_noncoherent(gem_obj->dev->dev, cma_obj->base.size,
+ 					     cma_obj->vaddr, cma_obj->paddr,
+ 					     DMA_TO_DEVICE);
+-		else
++		}
++		else{
++			DRM_INFO("d4\n");
++			DRM_INFO("cma_obj->paddr: 0x%08X\n", cma_obj->paddr);
++			DRM_INFO("cma_obj->vaddr: 0x%08X\n", cma_obj->vaddr);
+ 			dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
+ 				    cma_obj->vaddr, cma_obj->paddr);
++		}
+ 	}
+ 
++	
++
+ 	drm_gem_object_release(gem_obj);
+ 
+ 	kfree(cma_obj);
+@@ -382,6 +413,8 @@ void drm_gem_cma_print_info(struct drm_printer *p, unsigned int indent,
+ {
+ 	const struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(obj);
+ 
++	DRM_INFO("%s\n", __func__);
++
+ 	drm_printf_indent(p, indent, "paddr=%pad\n", &cma_obj->paddr);
+ 	drm_printf_indent(p, indent, "vaddr=%p\n", cma_obj->vaddr);
+ }
+@@ -404,6 +437,7 @@ struct sg_table *drm_gem_cma_get_sg_table(struct drm_gem_object *obj)
+ 	struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(obj);
+ 	struct sg_table *sgt;
+ 	int ret;
++	DRM_INFO("%s\n", __func__);
+ 
+ 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
+ 	if (!sgt)
+@@ -446,6 +480,8 @@ drm_gem_cma_prime_import_sg_table(struct drm_device *dev,
+ {
+ 	struct drm_gem_cma_object *cma_obj;
+ 
++	DRM_INFO("%s\n", __func__);
++
+ 	/* check if the entries in the sg_table are contiguous */
+ 	if (drm_prime_get_contiguous_size(sgt) < attach->dmabuf->size)
+ 		return ERR_PTR(-EINVAL);
+@@ -507,6 +543,9 @@ int drm_gem_cma_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+ {
+ 	struct drm_gem_cma_object *cma_obj;
+ 	int ret;
++	dma_addr_t paddr;
++
++	DRM_INFO("%s\n", __func__);
+ 
+ 	/*
+ 	 * Clear the VM_PFNMAP flag that was set by drm_gem_mmap(), and set the
+@@ -519,6 +558,15 @@ int drm_gem_cma_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+ 
+ 	cma_obj = to_drm_gem_cma_obj(obj);
+ 
++	DRM_INFO("\n");
++    DRM_INFO("vm cma_obj->paddr: 0x%08X\n", cma_obj->paddr);
++    // If the VM CPU physical address is in the CMA, translate to the host PA for the GPU
++    if(0x40000000 <= cma_obj->paddr && cma_obj->paddr < (0x40000000 + 0x10000000)){
++        paddr = cma_obj->paddr - 0x40000000 + 0xd0000000;
++    }
++
++    DRM_INFO("host cma_obj->paddr: 0x%08X -> paddr: 0x%08X\n", cma_obj->paddr, paddr);
++
+ 	if (cma_obj->map_noncoherent) {
+ 		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+ 
+@@ -526,8 +574,9 @@ int drm_gem_cma_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+ 				     vma, vma->vm_end - vma->vm_start,
+ 				     virt_to_page(cma_obj->vaddr));
+ 	} else {
++		DRM_INFO("%s 2\n", __func__);
+ 		ret = dma_mmap_wc(cma_obj->base.dev->dev, vma, cma_obj->vaddr,
+-				  cma_obj->paddr, vma->vm_end - vma->vm_start);
++				  paddr, vma->vm_end - vma->vm_start);
+ 	}
+ 	if (ret)
+ 		drm_gem_vm_close(vma);
 diff --git a/drivers/mxc/gpu-viv/hal/kernel/gc_hal_kernel_mmu.c b/drivers/mxc/gpu-viv/hal/kernel/gc_hal_kernel_mmu.c
 index f4b05a79061c..3640ff4182de 100644
 --- a/drivers/mxc/gpu-viv/hal/kernel/gc_hal_kernel_mmu.c

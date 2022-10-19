@@ -24,13 +24,14 @@ buildLinux (args // rec {
     LOGO y
     FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER n
     FB_EFI n
-    VFIO_PLATFORM y
   '';
 
-  kernelPatches = [ {
-    name = "Disable autosuspend USB devices";
-    patch = ./disable-autosuspend-usb.patch;
-  } ];
+  kernelPatches = [ 
+    {
+      name = "Added DTS and GPU passthrough drivers for VM";
+      patch = ./linux-imx8/0001-Added-DTS-and-GPU-PT-drivers-changes-for-VM.patch;
+    } 
+  ];
 
   src = fetchGit {
     url = "https://source.codeaurora.org/external/imx/linux-imx";
